@@ -12,7 +12,7 @@ var previousMfpCarbs = 0;
 //console.log(config.privateKey)
 //console.log(currentDate);
 //console.log(currentDateUTC);
-console.log("Myfitnesspal nightscout booting up..");
+console.log("Myfitnesspal nightscout booting up.");
 function getMFPCarbs(){
 	mfp.fetchSingleDate("legoandmars",currentDate,"all",function(data){
 		//console.log(data);
