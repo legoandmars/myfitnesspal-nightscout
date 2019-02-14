@@ -14,7 +14,7 @@ function getMFPCarbs(){
 	var currentDateUTC = currentTime.getUTCFullYear() + '-' + (((currentTime.getUTCMonth() + 1) < 10) ? '0' : '') + (currentTime.getUTCMonth() + 1) + '-' + ((currentTime.getUTCDate() < 10) ? '0' : '') + currentTime.getUTCDate();
 	var previousMfpCarbs = 0;
 
-	mfp.fetchSingleDate("legoandmars",currentDate,"all",function(data){
+	mfp.fetchSingleDate(config.myfitnesspalUsername,currentDate,"all",function(data){
 		//console.log(data);
 		var mfpCarbs = data["carbs"];
 		if(!mfpCarbs){mfpCarbs=0};
