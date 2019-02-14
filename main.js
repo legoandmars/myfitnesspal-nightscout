@@ -5,10 +5,17 @@ const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const requestService = require('request');
 var previousMfpCarbs = 0;
 console.log("Myfitnesspal nightscout booting up.");
+
 function getMFPCarbs(){
+
 	var currentTime = new Date();
+	//AHHHHHHHHHHHHHHHHHHHHH I HATE TIMEZONES. WHY MUST THEY EXIST AND TORMENT ME LIKE THIS?
+	var utcDate = new Date(currentTime.getTime() + currentTime.getTimezoneOffset()*60000);
+	currentTime = new Date(utcDate.getTime() + config.UTCOffset*60*60000);
 	var currentDate = currentTime.getFullYear() + '-' + (((currentTime.getMonth() + 1) < 10) ? '0' : '') + (currentTime.getMonth() + 1) + '-' + ((currentTime.getDate() < 10) ? '0' : '') + currentTime.getDate();
-	var currentDateUTC = currentTime.getUTCFullYear() + '-' + (((currentTime.getUTCMonth() + 1) < 10) ? '0' : '') + (currentTime.getUTCMonth() + 1) + '-' + ((currentTime.getUTCDate() < 10) ? '0' : '') + currentTime.getUTCDate();
+	var currentDateUTC = utcDate.getFullYear() + '-' + (((utcDate.getMonth() + 1) < 10) ? '0' : '') + (utcDate.getMonth() + 1) + '-' + ((utcDate.getDate() < 10) ? '0' : '') + utcDate.getDate();
+	//console.log(currentDate)
+	//console.log(currentDateUTC)
 	//use utc for nightscout site sorting
 	if(config.API_SECRET == "nightscoutApiSecretHere" || config.nightscoutSite == "https://siteName.herokuapp.com" || config.myfitnesspalUsername == "usernameHere"){
 		console.log("The config file still has default values that need to be changed.");
@@ -93,11 +100,6 @@ function nightscoutPostCarbs(carbAmount){
     }
   });
 }
-
-//nightscoutPostCarbs(0.001);
-/*mfpCarbsInNightscout(function(totalCarbsInBS){
-	console.log(totalCarbsInBS);
-})*/
 
 setInterval(function(){
     getMFPCarbs()}, 5000);
