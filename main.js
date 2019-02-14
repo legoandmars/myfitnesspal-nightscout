@@ -3,17 +3,17 @@ const ini = require('ini');
 const mfp = require('mfp');
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const requestService = require('request');
-
-var currentTime = new Date();
-var currentDate = currentTime.getFullYear() + '-' + (((currentTime.getMonth() + 1) < 10) ? '0' : '') + (currentTime.getMonth() + 1) + '-' + ((currentTime.getDate() < 10) ? '0' : '') + currentTime.getDate();
-var currentDateUTC = currentTime.getUTCFullYear() + '-' + (((currentTime.getUTCMonth() + 1) < 10) ? '0' : '') + (currentTime.getUTCMonth() + 1) + '-' + ((currentTime.getUTCDate() < 10) ? '0' : '') + currentTime.getUTCDate();
-var previousMfpCarbs = 0;
 //use utc for nightscout site sorting
 //console.log(config.privateKey)
 //console.log(currentDate);
 //console.log(currentDateUTC);
 console.log("Myfitnesspal nightscout booting up.");
 function getMFPCarbs(){
+	var currentTime = new Date();
+	var currentDate = currentTime.getFullYear() + '-' + (((currentTime.getMonth() + 1) < 10) ? '0' : '') + (currentTime.getMonth() + 1) + '-' + ((currentTime.getDate() < 10) ? '0' : '') + currentTime.getDate();
+	var currentDateUTC = currentTime.getUTCFullYear() + '-' + (((currentTime.getUTCMonth() + 1) < 10) ? '0' : '') + (currentTime.getUTCMonth() + 1) + '-' + ((currentTime.getUTCDate() < 10) ? '0' : '') + currentTime.getUTCDate();
+	var previousMfpCarbs = 0;
+
 	mfp.fetchSingleDate("legoandmars",currentDate,"all",function(data){
 		//console.log(data);
 		var mfpCarbs = data["carbs"];
