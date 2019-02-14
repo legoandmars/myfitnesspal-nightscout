@@ -3,16 +3,13 @@ const ini = require('ini');
 const mfp = require('mfp');
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const requestService = require('request');
-//use utc for nightscout site sorting
-//console.log(config.privateKey)
-//console.log(currentDate);
-//console.log(currentDateUTC);
+var previousMfpCarbs = 0;
 console.log("Myfitnesspal nightscout booting up.");
 function getMFPCarbs(){
 	var currentTime = new Date();
 	var currentDate = currentTime.getFullYear() + '-' + (((currentTime.getMonth() + 1) < 10) ? '0' : '') + (currentTime.getMonth() + 1) + '-' + ((currentTime.getDate() < 10) ? '0' : '') + currentTime.getDate();
 	var currentDateUTC = currentTime.getUTCFullYear() + '-' + (((currentTime.getUTCMonth() + 1) < 10) ? '0' : '') + (currentTime.getUTCMonth() + 1) + '-' + ((currentTime.getUTCDate() < 10) ? '0' : '') + currentTime.getUTCDate();
-	var previousMfpCarbs = 0;
+	//use utc for nightscout site sorting
 	if(config.API_SECRET == "nightscoutApiSecretHere" || config.nightscoutSite == "https://siteName.herokuapp.com" || config.myfitnesspalUsername == "usernameHere"){
 		console.log("The config file still has default values that need to be changed.");
 	}else{
@@ -24,11 +21,11 @@ function getMFPCarbs(){
 			//now get mfp carbs in nightscout to see if we need to add some more.
 			if(previousMfpCarbs == mfpCarbs){
 				//do nothing. they're the same amount since last time.
-				console.log("No new mfp entries. Carbs are still "+mfpCarbs);
+				//console.log("No new mfp entries. Carbs are still "+mfpCarbs);
 			}else{
 				//new value! set the value and do comparison
 				previousMfpCarbs = mfpCarbs;	
-				mfpCarbsInNightscout(function(currentCarbsInNS){
+				mfpCarbsInNightscout(currentDateUTC,function(currentCarbsInNS){
 					//console.log(currentCarbsInNS);
 					if(currentCarbsInNS != null){
 						console.log(mfpCarbs+" carbs entered in myfitnesspal and "+currentCarbsInNS+" grams of carbs entered in nightscout through mfp");
@@ -50,7 +47,7 @@ function getMFPCarbs(){
 	}
 }
 
-function mfpCarbsInNightscout(callbackFunction){
+function mfpCarbsInNightscout(currentDateUTC,callbackFunction){
 	requestService(config.nightscoutSite+'/api/v1/treatments?find[enteredBy]=MyfitnessPal&find[created_at][$gte]='+currentDateUTC, function (error, response, body) {
 	    if (!error && response.statusCode == 200) {
 	   	  var bodyParsed = JSON.parse(body);
