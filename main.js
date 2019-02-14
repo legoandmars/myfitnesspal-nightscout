@@ -32,7 +32,7 @@ function getMFPCarbs(){
 			}else{
 				//new value! set the value and do comparison
 				previousMfpCarbs = mfpCarbs;	
-				mfpCarbsInNightscout(currentDateUTC,function(currentCarbsInNS){
+				mfpCarbsInNightscout(currentDateUTC,currentDate,function(currentCarbsInNS){
 					//console.log(currentCarbsInNS);
 					if(currentCarbsInNS != null){
 						console.log(mfpCarbs+" carbs entered in myfitnesspal and "+currentCarbsInNS+" grams of carbs entered in nightscout through mfp");
@@ -42,7 +42,7 @@ function getMFPCarbs(){
 							//basic safety check (improve)
 							if(neededAmount > 0.1 && neededAmount < 500){
 								console.log("entering "+neededAmount+" carbs");
-								nightscoutPostCarbs(neededAmount);
+								nightscoutPostCarbs(currentDate,neededAmount);
 							}
 						}else{
 							console.log("we have plenty of insulin.");
@@ -54,7 +54,7 @@ function getMFPCarbs(){
 	}
 }
 
-function mfpCarbsInNightscout(currentDateUTC,callbackFunction){
+function mfpCarbsInNightscout(currentDateUTC,currentDate,callbackFunction){
 	requestService(config.nightscoutSite+'/api/v1/treatments?find[enteredBy]=MyfitnessPal&find[created_at][$gte]='+currentDateUTC, function (error, response, body) {
 	    if (!error && response.statusCode == 200) {
 	   	  var bodyParsed = JSON.parse(body);
@@ -63,8 +63,10 @@ function mfpCarbsInNightscout(currentDateUTC,callbackFunction){
 	   	  for(var i = 0; i<bodyParsed.length;i++){
 	   	  	var currentEntry = bodyParsed[i];
 	   	  	if(currentEntry["carbs"]){
-	   	  		//console.log(currentEntry["carbs"]);
-	   	  		totalCarbsDosedFor = totalCarbsDosedFor+currentEntry["carbs"];
+	   	  		if(currentEntry["reason"] == currentDate){
+		   	  		//console.log(currentEntry["carbs"]);
+		   	  		totalCarbsDosedFor = totalCarbsDosedFor+currentEntry["carbs"];
+	   	  		}
 	   	  	}
 	   	  }
 	   	  //console.log(totalCarbsDosedFor);
@@ -81,13 +83,13 @@ function mfpCarbsInNightscout(currentDateUTC,callbackFunction){
 	});
 }
 
-function nightscoutPostCarbs(carbAmount){
+function nightscoutPostCarbs(currentDate,carbAmount){
     var nightscoutOptions = {
     url: config.nightscoutSite+'/api/v1/treatments.json',
     json:true,
     body: {
       "enteredBy": "MyfitnessPal", 
-      "reason": "i am testing web dev stuff. ignore.", 
+      "reason": currentDate, 
       "carbs": carbAmount, 
       "secret": config.API_SECRET}
     };
