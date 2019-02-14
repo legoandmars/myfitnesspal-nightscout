@@ -13,38 +13,41 @@ function getMFPCarbs(){
 	var currentDate = currentTime.getFullYear() + '-' + (((currentTime.getMonth() + 1) < 10) ? '0' : '') + (currentTime.getMonth() + 1) + '-' + ((currentTime.getDate() < 10) ? '0' : '') + currentTime.getDate();
 	var currentDateUTC = currentTime.getUTCFullYear() + '-' + (((currentTime.getUTCMonth() + 1) < 10) ? '0' : '') + (currentTime.getUTCMonth() + 1) + '-' + ((currentTime.getUTCDate() < 10) ? '0' : '') + currentTime.getUTCDate();
 	var previousMfpCarbs = 0;
-
-	mfp.fetchSingleDate(config.myfitnesspalUsername,currentDate,"all",function(data){
-		//console.log(data);
-		var mfpCarbs = data["carbs"];
-		if(!mfpCarbs){mfpCarbs=0};
-		//console.log(mfpCarbs);
-		//now get mfp carbs in nightscout to see if we need to add some more.
-		if(previousMfpCarbs == mfpCarbs){
-			//do nothing. they're the same amount since last time.
-			console.log("No new mfp entries. Carbs are still "+mfpCarbs);
-		}else{
-			//new value! set the value and do comparison
-			previousMfpCarbs = mfpCarbs;	
-			mfpCarbsInNightscout(function(currentCarbsInNS){
-				//console.log(currentCarbsInNS);
-				if(currentCarbsInNS != null){
-					console.log(mfpCarbs+" carbs entered in myfitnesspal and "+currentCarbsInNS+" grams of carbs entered in nightscout through mfp");
-					if(Number(currentCarbsInNS) < mfpCarbs){
-						console.log("We need to add an entry for myfitnesspal!");
-						var neededAmount = mfpCarbs-currentCarbsInNS
-						//basic safety check (improve)
-						if(neededAmount > 0.1 && neededAmount < 500){
-							console.log("entering "+neededAmount+" carbs");
-							nightscoutPostCarbs(neededAmount);
+	if(config.API_SECRET == "nightscoutApiSecretHere" || config.nightscoutSite == "https://siteName.herokuapp.com" || config.myfitnesspalUsername == "usernameHere"){
+		console.log("The config file still has default values that need to be changed.");
+	}else{
+		mfp.fetchSingleDate(config.myfitnesspalUsername,currentDate,"all",function(data){
+			//console.log(data);
+			var mfpCarbs = data["carbs"];
+			if(!mfpCarbs){mfpCarbs=0};
+			//console.log(mfpCarbs);
+			//now get mfp carbs in nightscout to see if we need to add some more.
+			if(previousMfpCarbs == mfpCarbs){
+				//do nothing. they're the same amount since last time.
+				console.log("No new mfp entries. Carbs are still "+mfpCarbs);
+			}else{
+				//new value! set the value and do comparison
+				previousMfpCarbs = mfpCarbs;	
+				mfpCarbsInNightscout(function(currentCarbsInNS){
+					//console.log(currentCarbsInNS);
+					if(currentCarbsInNS != null){
+						console.log(mfpCarbs+" carbs entered in myfitnesspal and "+currentCarbsInNS+" grams of carbs entered in nightscout through mfp");
+						if(Number(currentCarbsInNS) < mfpCarbs){
+							console.log("We need to add an entry for myfitnesspal!");
+							var neededAmount = mfpCarbs-currentCarbsInNS
+							//basic safety check (improve)
+							if(neededAmount > 0.1 && neededAmount < 500){
+								console.log("entering "+neededAmount+" carbs");
+								nightscoutPostCarbs(neededAmount);
+							}
+						}else{
+							console.log("we have plenty of insulin.");
 						}
-					}else{
-						console.log("we have plenty of insulin.");
 					}
-				}
-			});
-		}
-	})
+				});
+			}
+		})
+	}
 }
 
 function mfpCarbsInNightscout(callbackFunction){
