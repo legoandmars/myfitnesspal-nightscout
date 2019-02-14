@@ -1,5 +1,3 @@
-#ignore config files
-config.ini
 #we don't need node modules
 **/node_modules/*
-*.ini
+run.bat
